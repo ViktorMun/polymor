@@ -107,7 +107,7 @@ namespace MyGame
 
     class Image : BaseObject
     {
-      static  string FileName = @"C:\Users\AsusVivo\Pictures\2007BMP.jpg";
+      static  string FileName = @"2007BMP.jpg";
         Bitmap Img = new Bitmap(FileName);//Загрузка исходного изображения
        
        
