@@ -5,10 +5,16 @@ namespace MyGame
 {
     static class Game
     {
+
+       
+
         static BaseObject[] _objs;
         private static BufferedGraphicsContext _context;
         public static BufferedGraphics Buffer;
-        
+        private static Bullet _bullet;
+        private static Asteroid[] _asteroids;
+
+
 
         public static int Width { get; set; }
         public static int Height { get; set; }
@@ -35,38 +41,38 @@ namespace MyGame
             Draw();
             Update();
         }
-      
+
 
         public static void Load()
         {
-            _objs = new BaseObject[50];
-            for (int i = 0; i < _objs.Length / 3; i++)
-                _objs[i] = new BaseObject(new Point(600, i * 20), new Point(-i, -i), new Size(10, 10));
-      
-            for (int i = _objs.Length / 3; i < 21; i++)
-                _objs[i] = new Star(new Point(600, i * 20), new Point(-i, 0), new Size(3, 3));
-
-            //1.	Добавить свои объекты в иерархию объектов, чтобы получился красивый задний фон, похожий на полет в звездном пространстве.
-            for (int i = 21; i < 31 ; i++)
-                _objs[i] = new Square(new Point(600, i * 20), new Point(-i, 0), new Size(6, 6));
-            for (int i = 31; i < 41; i++)
-                _objs[i] = new Curve(new Point(600, i * 20), new Point(-i, 0), new Size(6, 6));
-            //2.	* Заменить кружочки картинками, используя метод DrawImage.
-            for (int i =41; i < _objs.Length ; i++)
-                _objs[i] = new Image(new Point(600, i * 20), new Point(-i, -i), new Size(30, 30));
+            _objs = new BaseObject[100];
+            _bullet = new Bullet(new Point(0, 200), new Point(5, 0), new Size(10, 10));
+            _asteroids = new Asteroid[30];
+            var rnd = new Random();
+            for (var i = 0; i < _objs.Length; i++)
+            {
+                int r = rnd.Next(5, 50);
+                _objs[i] = new Star(new Point(1000, rnd.Next(0, Game.Height)), new Point(-r, r), new Size(2, 2));
+            }
+            for (var i = 0; i < _asteroids.Length; i++)
+            {
+                int r = rnd.Next(5, 50);
+                _asteroids[i] = new Asteroid(new Point(1000, rnd.Next(0, Game.Height)), new Point(-r / 5, r), new Size(r, r));
+            }
+           
         }
 
 
+
+
         public static void Draw()
-        { Buffer.Graphics.Clear(Color.Black);
-            Buffer.Graphics.DrawRectangle(Pens.White, new Rectangle(100, 100, 200, 200));
-            Buffer.Graphics.FillEllipse(Brushes.Wheat, new Rectangle(100, 100, 200, 200));
-
-            Buffer.Render();
-
+        {
             Buffer.Graphics.Clear(Color.Black);
             foreach (BaseObject obj in _objs)
                 obj.Draw();
+            foreach (Asteroid obj in _asteroids)
+                obj.Draw();
+            _bullet.Draw();
             Buffer.Render();
         }
 
@@ -74,9 +80,24 @@ namespace MyGame
         {
             foreach (BaseObject obj in _objs)
                 obj.Update();
+            foreach (Asteroid a in _asteroids)
+            {
+                a.Update();
+                if (a.Collision(_bullet))
+                { //System.Media.SystemSounds.Hand.Play(); }
+                    // У меня не играл звук, внизу я поставил чтобы проверить проходит или нет
+                    MessageBox.Show("Столкновение");
+                    
+
+
+                }
+            }
+            _bullet.Update();
         }
 
-      
+
+
+
 
     }
 }
