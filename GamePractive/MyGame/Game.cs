@@ -47,7 +47,7 @@ namespace MyGame
         {
             _objs = new BaseObject[100];
             _bullet = new Bullet(new Point(0, 200), new Point(5, 0), new Size(10, 10));
-            _asteroids = new Asteroid[30];
+            _asteroids = new Asteroid[50];
             var rnd = new Random();
             for (var i = 0; i < _objs.Length; i++)
             {
@@ -59,7 +59,9 @@ namespace MyGame
                 int r = rnd.Next(5, 50);
                 _asteroids[i] = new Asteroid(new Point(1000, rnd.Next(0, Game.Height)), new Point(-r / 5, r), new Size(r, r));
             }
-           
+
+         
+
         }
 
 
@@ -85,9 +87,9 @@ namespace MyGame
                 a.Update();
                 if (a.Collision(_bullet))
                 { //System.Media.SystemSounds.Hand.Play(); }
-                    // У меня не играл звук, внизу я поставил чтобы проверить проходит или нет
-                    MessageBox.Show("Столкновение");
-                    
+                  // У меня не играл звук, внизу я поставил чтобы проверить проходит или нет
+                  // MessageBox.Show("Столкновение");
+                    a.UpdatePlace();
 
 
                 }

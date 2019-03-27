@@ -9,13 +9,21 @@ namespace MyGame
         protected Point Pos;
         protected Point Dir;
         protected Size Size;
-
         protected BaseObject(Point pos, Point dir, Size size)
         {
             Pos = pos;
             Dir = dir;
             Size = size;
+
+            //* Создать собственное исключение GameObjectException, 
+            //которое появляется при попытке создать объект с неправильными характеристиками
+            if (pos.X<0 || pos.Y <0) throw new GameObjectException("Нельзя отрицательные значения");
+            if (Convert.ToInt32(dir.X) > 100 || Convert.ToInt32(dir.Y) > 100) throw new GameObjectException("Слишком большая скорость!");
         }
+
+       
+
+
         public abstract void Draw();
       //  2.	Переделать виртуальный метод Update в BaseObject в абстрактный и реализовать его в наследниках.
         public abstract void Update();
@@ -44,6 +52,16 @@ namespace MyGame
         {
             Pos.X = Pos.X + Dir.X;
             if (Pos.X < 0) Pos.X = Game.Width + Size.Width;
+        }
+
+        /// <summary>
+        /// 3.	Сделать так, чтобы при столкновении пули с астероидом они регенерировались в разных концах экрана.
+                /// </summary>
+        public void UpdatePlace() //добавил UpdatePlace и астероид переносится рандомно
+        {
+            var rnd = new Random();
+            Pos.X = rnd.Next(0, Game.Height);
+            Pos.Y = rnd.Next(0, Game.Height);
         }
     }
     class Bullet : BaseObject
