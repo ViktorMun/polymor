@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace MyGame
 {
-
+    public delegate void Message();
     abstract class BaseObject : ICollision
     {
         protected Point Pos;
@@ -36,7 +36,47 @@ namespace MyGame
 
     }
 
-       
+    class Ship : BaseObject
+    {
+        private Image _image;
+        public static event Message MessageDie;
+        private int _energy = 100;
+        public int Energy => _energy;
+
+        public void EnergyLow(int n)
+        {
+            _energy -= n;
+        }
+        public void EnergyAdd(int n)
+        {
+            _energy += n;
+        }
+        public Ship(Point pos, Point dir, Size size) : base(pos, dir, size)
+        {
+            _image = Image.FromFile("ship.png");
+        }
+        public override void Draw()
+        {
+            Game.Buffer.Graphics.DrawImage(_image, Pos.X, Pos.Y, 30,30);
+        }
+        public override void Update()
+        {
+        }
+        public void Up()
+        {
+            if (Pos.Y > 0) Pos.Y = Pos.Y - Dir.Y;
+        }
+        public void Down()
+        {
+            if (Pos.Y < Game.Height) Pos.Y = Pos.Y + Dir.Y;
+        }
+        public void Die()
+        {
+            MessageDie?.Invoke();
+        }
+
+    }
+
     class Asteroid : BaseObject
     {
         public int Power { get; set; }
@@ -53,15 +93,34 @@ namespace MyGame
             Pos.X = Pos.X + Dir.X;
             if (Pos.X < 0) Pos.X = Game.Width + Size.Width;
         }
-
         /// <summary>
         /// 3.	Сделать так, чтобы при столкновении пули с астероидом они регенерировались в разных концах экрана.
-                /// </summary>
+        /// </summary>
         public void UpdatePlace() //добавил UpdatePlace и астероид переносится рандомно
         {
             var rnd = new Random();
             Pos.X = rnd.Next(0, Game.Height);
             Pos.Y = rnd.Next(0, Game.Height);
+        }
+    }
+    /// <summary>
+    /// 3.	Aптечки, которые добавляют энергию
+    /// </summary>
+    class Medicine : BaseObject
+    {
+        public int Power { get; set; }
+        public Medicine(Point pos, Point dir, Size size) : base(pos, dir, size)
+        {
+            Power = 4;
+        }
+        public override void Draw()
+        {
+            Game.Buffer.Graphics.FillEllipse(Brushes.Green, Pos.X, Pos.Y, Size.Width, Size.Height);
+        }
+        public override void Update()
+        {
+            Pos.X = Pos.X + Dir.X;
+            if (Pos.X < 0) Pos.X = Game.Width + Size.Width;
         }
     }
     class Bullet : BaseObject
