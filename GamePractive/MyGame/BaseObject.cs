@@ -4,21 +4,23 @@ using System.Drawing;
 namespace MyGame
 {
     public delegate void Message();
-    abstract class BaseObject : ICollision
+    abstract class BaseObject : ICollision, IRebornable
     {
         protected Point Pos;
         protected Point Dir;
         protected Size Size;
+        private object _startPos;
+
         protected BaseObject(Point pos, Point dir, Size size)
         {
             Pos = pos;
             Dir = dir;
             Size = size;
-
             //* Создать собственное исключение GameObjectException, 
             //которое появляется при попытке создать объект с неправильными характеристиками
             if (pos.X<0 || pos.Y <0) throw new GameObjectException("Нельзя отрицательные значения");
             if (Convert.ToInt32(dir.X) > 100 || Convert.ToInt32(dir.Y) > 100) throw new GameObjectException("Слишком большая скорость!");
+                        _startPos = new Point(pos.X, pos.Y);
         }
 
        
@@ -27,13 +29,18 @@ namespace MyGame
         public abstract void Draw();
       //  2.	Переделать виртуальный метод Update в BaseObject в абстрактный и реализовать его в наследниках.
         public abstract void Update();
-      
+ 
 
-       
         public bool Collision(ICollision o) => o.Rect.IntersectsWith(this.Rect);
 
         public Rectangle Rect => new Rectangle(Pos, Size);
 
+
+        public virtual void Reborn()
+        {
+            Pos.X = 200;
+            Pos.Y = 200;
+        }
     }
 
     class Ship : BaseObject
@@ -93,6 +100,11 @@ namespace MyGame
             Pos.X = Pos.X + Dir.X;
             if (Pos.X < 0) Pos.X = Game.Width + Size.Width;
         }
+        public override void Reborn()
+        {
+            base.Reborn();
+            Pos.X = Game.Width;
+        }
         /// <summary>
         /// 3.	Сделать так, чтобы при столкновении пули с астероидом они регенерировались в разных концах экрана.
         /// </summary>
@@ -123,6 +135,8 @@ namespace MyGame
             if (Pos.X < 0) Pos.X = Game.Width + Size.Width;
         }
     }
+
+
     class Bullet : BaseObject
     {
         public Bullet(Point pos, Point dir, Size size) : base(pos, dir, size)

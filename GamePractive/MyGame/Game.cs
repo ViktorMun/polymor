@@ -5,9 +5,6 @@ namespace MyGame
 {
     static class Game
     {
-
-       
-
         static BaseObject[] _objs;
         private static BufferedGraphicsContext _context;
         public static BufferedGraphics Buffer;
@@ -18,14 +15,14 @@ namespace MyGame
         private static Ship _ship = new Ship(new Point(10, 400), new Point(5, 5), new Size(10, 10));
         private static Timer _timer = new Timer();
         public static Random Rnd = new Random();
-
+        private static LogDelegate _logDelegate;
 
         public static int Width { get; set; }
         public static int Height { get; set; }
         static Game()
         {
         }
-        public static void Init(Form form)
+        public static void Init(Form form, LogDelegate logDelegate)
         {
              Graphics g;
             _context = BufferedGraphicsManager.Current;
@@ -36,10 +33,12 @@ namespace MyGame
           
             _timer.Start();
             _timer.Tick += Timer_Tick;
+            _logDelegate = logDelegate;
             form.KeyDown += Form_KeyDown;
             Ship.MessageDie += Finish;
         }
 
+     
         private static void Form_KeyDown(object sender, KeyEventArgs e)
         {
                 if (e.KeyCode == Keys.ControlKey) _bullet = new Bullet(new Point(_ship.Rect.X + 10, _ship.Rect.Y + 4), new Point(4, 0), new Size(4, 1));
@@ -65,7 +64,7 @@ namespace MyGame
         public static void Load()
         {
             _objs = new BaseObject[100];
-            _bullet = new Bullet(new Point(0, 200), new Point(5, 0), new Size(10, 10));
+            _bullet = new Bullet(new Point(0, 200), new Point(5, 0), new Size(8, 2));
             _asteroids = new Asteroid[50];
             _medicine = new Medicine[10];
             var rnd = new Random();
@@ -110,8 +109,11 @@ namespace MyGame
 
         public static void Update()
         {
+
+
+
             foreach (BaseObject obj in _objs) obj.Update();
-            _bullet?.Update();
+            _bullet?.Update(); 
             for (var i = 0; i < _asteroids.Length; i++)
             {
                 if (_asteroids[i] == null) continue;
@@ -120,10 +122,12 @@ namespace MyGame
                 if (_bullet != null && _bullet.Collision(_asteroids[i]))
                 {
                     System.Media.SystemSounds.Hand.Play();
-                    _asteroids[i] = null;
-                    _bullet = null;
+                    _asteroids[i].Reborn(); _bullet.Reborn();
+                    
                     continue;
                 }
+              
+
                 if (!_ship.Collision(_asteroids[i])) continue;
                 var rnd = new Random();
                 _ship?.EnergyLow(rnd.Next(1, 10));
