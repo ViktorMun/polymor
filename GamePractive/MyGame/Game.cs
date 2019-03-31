@@ -16,6 +16,7 @@ namespace MyGame
         private static Timer _timer = new Timer();
         public static Random Rnd = new Random();
         private static LogDelegate _logDelegate;
+        private static int count;
 
         public static int Width { get; set; }
         public static int Height { get; set; }
@@ -104,6 +105,7 @@ namespace MyGame
             _ship?.Draw();
             if (_ship != null)
                 Buffer.Graphics.DrawString("Energy:" + _ship.Energy, SystemFonts.DefaultFont, Brushes.White, 0, 0);
+            Buffer.Graphics.DrawString("Asteroids died:" + count, SystemFonts.DefaultFont, Brushes.White, 0, 20);
             Buffer.Render();
         }
 
@@ -122,7 +124,9 @@ namespace MyGame
                 if (_bullet != null && _bullet.Collision(_asteroids[i]))
                 {
                     System.Media.SystemSounds.Hand.Play();
-                    _asteroids[i].Reborn(); _bullet.Reborn();
+                    count += 1;
+                    _asteroids[i].Reborn();
+                    _bullet.Reborn();
                     
                     continue;
                 }
@@ -135,10 +139,6 @@ namespace MyGame
                 if (_ship.Energy <= 0) _ship?.Die();
 
 
-                if (!_ship.Collision(_medicine[i])) continue;
-
-                _ship?.EnergyAdd(rnd.Next(1, 10));
-                System.Media.SystemSounds.Asterisk.Play();
             }
             for (var i = 0; i < _medicine.Length; i++)
             {
